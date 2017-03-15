@@ -1,0 +1,45 @@
+//
+   Created by Enrique on 09/03/2017.
+
+
+extends layout_main
+block content
+    div.row.container(style="margin-top:5%")
+        div.col.s10.push-s1
+            table.centered
+                thead
+                    tr
+                        th ID
+                        th Nombre
+                        th Token
+                tbody
+                    for app in applications
+                        tr
+                            td #{app.id}
+                            td #{app.name}
+                            td #{app.token}
+                             td
+                                a#deleteApp.btn.red.white-text(href="#",data-id="#{app.id}")
+                                    i.material-icons delete
+                    else
+                        tr
+                            td(colspan="3") No hay Aplicaciones
+
+    div.fixed-action-btn
+        a.btn-floating.btn-large.green.z-depth-2.waves-teal(href="#modal_application")
+            i.large.material-icons add
+
+
+    div#modal_application.modal.modal-fixed-footer
+        div.modal-content
+            h4.center-align.centered Crear Aplicación
+            div.row
+                div.col.s8.push-s2
+                    p Nombre
+                        div.input-field
+                            input#nameApp.input(type="text")
+        div.modal-footer
+            div.col.s6.left-align
+                a#createApp.btn.green.left(href="#") Guardar
+            div.col.s6.right-align
+                a.btn.right.grey.lighten-1.black-text.modal-action.modal-close(href="#") Cerrar

@@ -1,0 +1,16 @@
+//
+   Created by Enrique on 08/03/2017.
+
+extends layout_main
+block scripts
+    script(type='text/javascript',src="/javascripts/filemanager.js")
+block content
+    div.row.container(style="margin-top:5%")
+        div.col.s6.m6.l6
+            div.row
+                div.col.s6
+                    pre#dataFile
+                    a#hrefDown.btn.green.center(target="_blank",href="#") Descargar
+                div.col.s6
+                    img#imgView.responsive-img(src="/images/logo.png")
+        div#container_id.col.s6.m6.l6

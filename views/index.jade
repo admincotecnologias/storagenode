@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  div.row.logCard
+    div.col.s12.m8.l8.push-m2.push-l2.center.center-align
+      h2= title
+      div.card.horizontal.logCard.z-depth-3
+        div.card-stacked
+          div.card-content
+            form(action="/",method="POST")
+              div.row
+                p(for="icon_prefix",class="center center-align") Usuario
+                div.input-field.col.s6.m6.l6.push-m3.push-l3
+                    i.material-icons.prefix account_circle
+                    input#usuario.validate(type="text",name="usuario")
+              div.row
+                p(for="icon_prefix",class="center center-align") Contraseña
+                  div.input-field.col.s6.m6.l6.push-m3.push-l3
+                    i.material-icons.prefix https
+                    input#password.validate(type="password",name="password")
+              div.row
+                button.btn(type='submit') Iniciar
+
+
+
+

@@ -1,0 +1,22 @@
+//
+   Created by Enrique on 07/03/2017.
+
+extends layout_main
+block content
+    div.row(style="margin-top:6%")
+        div.container
+            div.col.s12.m10.l10.push-l1.push-m1
+                div.card.logCard
+                    div.card-content
+                        div.row
+                            p(for="icon_prefix",class="center center-align") Usuario
+                            div.input-field.col.s6.m6.l6.push-m3.push-l3
+                                i.material-icons.prefix account_circle
+                                input#usuario_create.validate(type="text",name="usuario_create")
+                        div.row
+                            p(for="icon_prefix",class="center center-align") Contraseña
+                                div.input-field.col.s6.m6.l6.push-m3.push-l3
+                                    i.material-icons.prefix https
+                                    input#password_create.validate(type="password",name="password_create")
+                        div.row
+                            a#create_user.btn(href="#",type='button') Crear

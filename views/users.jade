@@ -1,0 +1,23 @@
+//
+   Created by Enrique on 07/03/2017.
+
+extends layout_main
+block content
+    div.row.container.scroll-table
+        table.centered.bordered
+            thead
+                tr
+                    th ID
+                    th Nombre
+                    th Opciones
+            tbody
+                for user in users
+                    tr
+                        td #{user.id}
+                        td #{user.user}
+                        td
+                            a#deleteUser.btn.red.white-text(href="#",data-id="#{user.id}")
+                                i.material-icons delete
+                else
+                    tr
+                        td(colspan="3") No hay Usuarios

@@ -1,0 +1,32 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #dddddd;
+}
+
+a {
+  color: #00B7FF;
+}
+.logCard{
+  height: 50%;
+}
+.scroll-table{
+  padding-top:5%;
+  height:400px;
+  overflow-y:scroll;
+}
+.logo-img{
+  height: 60px;
+  width: auto;
+}
+body::-webkit-scrollbar{
+  visibility: none;
+  width: 0px;
+}
+#container_id{
+  height: 500px;
+  width: 16%;
+}
+div::-webkit-scrollbar{
+  visibility: hidden;
+  width: 0px;
+}
