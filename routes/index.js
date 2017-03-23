@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
     if(req.session.name){
         res.redirect('users/')
     }
-  res.render('index', { title: 'He Compa, Inicia Sesión' });
+  res.render('index', { title: 'Iniciar Sesión' });
 });
 router.post('/', function(req, res, next) {
   dataUser = {nombre:req.body.usuario,pwd:req.body.password}
