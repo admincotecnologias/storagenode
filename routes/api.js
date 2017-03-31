@@ -16,31 +16,35 @@ router.get('/:route/:file', function(req, res, next) {
     try{
         var routeSlasher = req.params.route.toString().replace(/([,*])/g,'/')
         var token = req.header("token_storage");
-        model.getRoute(token,routeSlasher,function (fullroute) {
-            if(fullroute.error == false && fullroute.route){
-                var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
-                fs.stat(route,function (err,stat) {
-                    if(err != null){
-                        res.json({data:route,check:null})
-                    }else{
-                        res.download(route)
-                    }
-                });
-            }else{
-                if(fullroute.error == false && !fullroute.route && routeSlasher == '/'){
+        if(token!=null){
+            model.getRoute(token,routeSlasher,function (fullroute) {
+                if(fullroute.error == false && fullroute.route){
                     var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
                     fs.stat(route,function (err,stat) {
-                        if(err){
+                        if(err != null){
                             res.json({data:route,check:null})
                         }else{
                             res.download(route)
                         }
                     });
                 }else{
-                    res.json({data:"no existe ruta"})
+                    if(fullroute.error == false && !fullroute.route && routeSlasher == '/'){
+                        var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
+                        fs.stat(route,function (err,stat) {
+                            if(err){
+                                res.json({data:route,check:null})
+                            }else{
+                                res.download(route)
+                            }
+                        });
+                    }else{
+                        res.json({data:"no existe ruta"})
+                    }
                 }
-            }
-        })
+            })
+        }else{
+            res.json({data:'no existe token'})
+        }
     }catch (ex){
         res.json({error:true,data:"exception",ex:ex})
     }
