@@ -47,8 +47,8 @@ Manager.insertUser = function(userData,callback)
 //inserta una nueva app y crea carpeta root
 Manager.insertApplication = function(appData,callback){
     if(!fs.existsSync('uploads/'+appData.nombre)){
-        fs.mkdir('uploads/'+appData.nombre, function (err) {
-            if (err) {
+        fs.mkdirSync('uploads/'+appData.nombre)
+            if (!fs.existsSync('uploads/'+appData.nombre)) {
                 console.log('Error al crear directorio', err);
             } else {
                 var stmt = db.prepare("INSERT INTO applications VALUES (?,?,?)");
@@ -57,20 +57,18 @@ Manager.insertApplication = function(appData,callback){
                     stmt.run(null,appData.nombre,hash,function (cb) {
                         if(cb != null){
                             if(cb.errno==19){
+                                fs.rmdirSync('uploads/'+appData.nombre);
                                 callback({error:true,description:"Ya existe ese registro"})
                             }else{
                                 callback({error:true,description:cb})
                             }
                         }else{
-                            fs.rmdirSync('uploads/'+appData.nombre);
-                            stmt.finalize();
                             callback({error:false,description:null});
                         }
                     });
 
                 });
             }
-        });
     }else{
         return callback({error:true,description:"Ya existe Carpeta con ese nombre"});
     }
@@ -96,37 +94,49 @@ var saveFiles = function (path,files,callback) {
     });
 }
 Manager.insertFiles = function (token,path,files, callback) {
-    db.all("SELECT * FROM applications WHERE token='"+token+"'",function (err,rows_app) {
-        if(err){
-            callback({error:true,data:err,description:"no se encontro aplicacion"})
-        }else{
-            if(rows_app.length>0){
-                var idapp = rows_app[0].id;
-                var apppath = rows_app[0].name + path;
-                if(!fs.existsSync('uploads/'+apppath)){
-                    var stmt = db.prepare("INSERT INTO directories VALUES (?,?,?)");
-                    stmt.run(null,apppath,idapp,function (cb) {
-                        var patharray = path.split('/')
-                        var pathcreate = 'uploads/'+rows_app[0].name;
-                        for(Single in patharray){
-                            if(patharray[Single]!=""){
-                                pathcreate = pathcreate+'/' + patharray[Single];
-                                console.log(pathcreate,patharray)
-                                fs.mkdirSync(pathcreate);
+    try{
+        db.all("SELECT * FROM applications WHERE token='"+token+"'",function (err,rows_app) {
+            if(err){
+                callback({error:true,data:err,description:"no se encontro aplicacion"})
+            }else{
+                if(rows_app.length>0){
+                    var idapp = rows_app[0].id;
+                    var apppath = rows_app[0].name + path;
+                    if(!fs.existsSync('uploads/'+rows_app[0].name)){
+                        fs.mkdirSync('uploads/'+rows_app[0].name);
+                    }
+                    if(!fs.existsSync('uploads/'+apppath)){
+                        var stmt = db.prepare("INSERT INTO directories VALUES (?,?,?)");
+                        stmt.run(null,apppath,idapp,function (cb) {
+                            var patharray = path.split('/')
+                            var pathcreate = 'uploads/'+rows_app[0].name;
+                            for(Single in patharray){
+                                if(patharray[Single]!=""){
+                                    pathcreate = pathcreate+'/' + patharray[Single];
+                                    console.log(pathcreate,patharray)
+                                    try{
+                                        fs.mkdirSync(pathcreate);
+                                    }catch (ex){
+                                        console.log(ex.code)
+                                        callback({error:true,data:'exception',description:ex.code})
+                                    }
+                                }
                             }
-                        }
+                            saveFiles(apppath,files,function (CB) {
+                                callback(CB);
+                            })
+                        });
+                    }else {
                         saveFiles(apppath,files,function (CB) {
                             callback(CB);
                         })
-                    });
-                }else {
-                    saveFiles(apppath,files,function (CB) {
-                        callback(CB);
-                    })
+                    }
                 }
             }
-        }
-    })
+        })
+    }catch(ex){
+        callback({error:true,data:'exception',ex:ex})
+    }
 }
 //DELETE User by ID
 Manager.deleteUser = function(id,callback)
