@@ -196,27 +196,10 @@ Manager.updateUser = function(id,password,callback)
 Manager.getRoute = function(token,path, callback)
 {
     db.all("SELECT * FROM applications WHERE token='"+token+"'",function (err,rows_app) {
-        if(err){
+        if(err || rows_app.length<1){
             callback({error:true,data:"No se encontro applicacion",description:err})
         }else{
-            if(path!='/'){
-                db.all("SELECT * FROM directories WHERE path='"+rows_app[0].name+path+"' AND idapp="+rows_app[0].id, function(err, rows) {
-                    if(err)
-                    {
-                        callback({error:true, rows:[],data:"No se encontro directorio",description:err});
-                    }
-                    else
-                    {
-                        if(rows.length>0){
-                            callback({error:false, app:rows_app[0],route:rows});
-                        }else{
-                            callback({error:false, app:rows_app[0],route:null});
-                        }
-                    }
-                });
-            }else {
-                callback({error:false, app:rows_app[0],route:null});
-            }
+            callback({error:false, app:rows_app[0],route:'uploads/'+rows_app[0].name+path});
         }
     })
 }

@@ -67,12 +67,14 @@ app.use('/logout',function (req,res,next) {
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     console.log(!req.header('token_storage'))
-    if(!req.session.name && !req.header('token_storage')){
-        res.redirect('/')
-    }else{
-        var err = new Error('Not Found');
-        err.status = 404;
-        next(err);
+    if(!req.url.includes('api')){
+        if(!req.session.name && !req.header('token_storage')){
+            res.redirect('/')
+        }else{
+            var err = new Error('Not Found');
+            err.status = 404;
+            next(err);
+        }
     }
 });
 

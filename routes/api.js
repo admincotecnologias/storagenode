@@ -19,33 +19,22 @@ router.get('/:route/:file', function(req, res, next) {
         if(token!=null){
             model.getRoute(token,routeSlasher,function (fullroute) {
                 if(fullroute.error == false && fullroute.route){
-                    var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
-                    fs.stat(route,function (err,stat) {
-                        if(err != null){
-                            res.json({data:route,check:null})
-                        }else{
-                            res.download(route)
-                        }
-                    });
-                }else{
-                    if(fullroute.error == false && !fullroute.route && routeSlasher == '/'){
-                        var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
-                        fs.stat(route,function (err,stat) {
-                            if(err){
-                                res.json({data:route,check:null})
-                            }else{
-                                res.download(route)
-                            }
-                        });
-                    }else{
-                        res.json({data:"no existe ruta"})
+                    var route = fullroute.route+req.params.file.replace(/([%*])/g,' ');
+                    console.log(route)
+                    if(fs.existsSync(route)) {
+                        res.download(route)
                     }
+                }else{
+                    res.status(400)
+                    res.json({data:"no existe ruta"})
                 }
             })
         }else{
+            res.status(401)
             res.json({data:'no existe token'})
         }
     }catch (ex){
+        res.status(400)
         res.json({error:true,data:"exception",ex:ex})
     }
 });
@@ -53,38 +42,32 @@ router.delete('/:route/:file', function(req, res, next) {
     try{
         var routeSlasher = req.params.route.toString().replace(/([,*])/g,'/')
         var token = req.header("token_storage");
-        model.getRoute(token,routeSlasher,function (fullroute) {
-            if(fullroute.error == false && fullroute.route){
-                var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
-                fs.stat(route,function (err,stat) {
-                    if(err != null){
-                        res.json({data:route,check:null})
-                    }else{
-                        fs.unlink(route,function(err){
-                            if(err) {
-                                res.json({error:true,data:'No se pudo eliminar archivo.'})
-                            }else{
-                                res.json({error:false,data:'Archivo eliminado'})
-                            }
-                        });
-                    }
-                });
-            }else{
-                if(fullroute.error == false && !fullroute.route && routeSlasher == '/'){
-                    var route = 'uploads/'+fullroute.app.name+routeSlasher+req.params.file.replace(/([%*])/g,' ');
+        if(token!=null){
+            model.getRoute(token,routeSlasher,function (fullroute) {
+                if(fullroute.error == false && fullroute.route){
+                    var route = fullroute.route+req.params.file.replace(/([%*])/g,' ');
                     fs.stat(route,function (err,stat) {
-                        if(err){
-                            res.json({data:route,check:null})
+                        if(err != null){
+                            res.status(404)
+                            res.json({data:route,check:null,error:true})
                         }else{
-                            res.download(route)
+                            fs.unlinkSync(route)
+                            if(!fs.existsSync(route)){
+                                res.json({data:route,error:false})
+                            }
                         }
                     });
                 }else{
+                    res.status(404)
                     res.json({data:"no existe ruta"})
                 }
-            }
-        })
+            })
+        }else{
+            res.status(401)
+            res.json({data:'no existe token'})
+        }
     }catch (ex){
+        res.status(400)
         res.json({error:true,data:"exception",ex:ex})
     }
 });
@@ -98,14 +81,17 @@ router.post('/:route/',upload.array('files'),function (req,res,next) {
                 if(callback.error){
                     res.json(callback);
                 }else{
+                    res.status(201)
                     res.json({error:callback.error,path:callback.path,requestroute:req.params.route.toString(),filename:callback.filename});
                 }
             }else {
+                res.status(400)
                 res.json({error:true,data:null})
             }
         })
     }    catch (ex){
         console.log(ex)
+        res.status(400)
         res.json({error:true,data:'exception',ex:ex})
     }
 })
